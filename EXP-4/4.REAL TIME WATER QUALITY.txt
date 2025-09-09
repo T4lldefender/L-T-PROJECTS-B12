@@ -1,0 +1,58 @@
+#include <Wire.h>
+ #include <Adafruit_GFX.h>
+ GND 
+#include <Adafruit_SSD1306.h>
+ #define SCREEN_WIDTH 128
+ #define SCREEN_HEIGHT 64
+ // OLED reset pin (if any)
+ #define OLED_RESET -1
+ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+ const int turbidityPin = A0; 
+const int ledClear = 14; // LED for clear water
+ const int ledTurbid = 2; // LED for turbid water
+ // Threshold for turbidity (you need to calibrate this)
+ const int turbidityThreshold = 500; // example value, adjust per your calibration
+ void setup() { 
+Serial.begin(115200);
+ pinMode(ledClear, OUTPUT);
+ pinMode(ledTurbid, OUTPUT);
+ // Initialize OLED
+ if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
+Serial.println(F("SSD1306 allocation failed"));
+ while(1); 
+}
+ display.clearDisplay();
+ display.setTextSize(1);
+ display.setTextColor(SSD1306_WHITE);
+ display.setCursor(0,0);
+ display.println("Water Quality Monitor");
+ display.display();
+ delay(2000);
+ display.clearDisplay(); 
+}
+ void loop() { 
+int sensorValue = analogRead(turbidityPin);
+ float voltage = sensorValue * (3.3 / 1023.0);
+ Serial.print("Analog Value: ");
+ Serial.print(sensorValue);
+ Serial.print("\tVoltage: ");
+ Serial.println(voltage); 
+//Display data on OLED
+ display.clearDisplay();
+ display.setCursor(0,0);
+ display.println("Water Quality Monitor");
+ display.print("Turbidity: ");
+ display.println(sensorValue);
+ display.display();
+ //Turn on LEDs based on turbidity threshold
+ if(sensorValue < turbidityThreshold) { 
+digitalWrite(ledClear, HIGH);
+ digitalWrite(ledTurbid, LOW);
+ Serial.println("RED"); 
+}else { 
+digitalWrite(ledClear, LOW);
+ digitalWrite(ledTurbid, HIGH);
+ Serial.println("yellow"); 
+}
+ delay(1000); // 1-second delay 
+}
