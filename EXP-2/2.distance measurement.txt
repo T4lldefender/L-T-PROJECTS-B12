@@ -1,0 +1,48 @@
+from machine import Pin, I2C from
+ time import sleep_us, sleep_ms from
+ lcd_api import LcdApi from
+ pico_i2c_lcd import I2cLcd 
+#--- HC-SR04 Setup --
+TRIG = Pin(3, Pin.OUT)
+ ECHO = Pin(2, Pin.IN) 
+#--- LED Setup --
+LED = Pin(4, Pin.OUT) 
+#--- LCD Setup --- I2C_ADDR = 0x27 i2c = I2C(0,
+ scl=Pin(1), sda=Pin(0), freq=400000) lcd =
+ I2cLcd(i2c, I2C_ADDR, 2, 16) 
+def get_distance(): 
+# Send 10us pulse to trigger
+ TRIG.low()
+ sleep_us(2)
+ TRIG.high()
+ sleep_us(10)
+ TRIG.low() 
+# Wait for echo start
+ while ECHO.value() == 0: 
+pass 
+start = time_us() 
+#Wait for echo end
+ while ECHO.value() == 1: 
+pass 
+end = time_us() 
+#Calculate distance in cm
+ duration = end - start
+ distance = (duration * 0.0343) / 2
+ return distance 
+deftime_us(): 
+#Return time in microseconds
+ return time.ticks_us() 
+import time 
+while True: 
+dist = get_distance()
+ lcd.clear()
+ lcd.putstr(f"Distance: {dist:.1f} cm") 
+ifdist < 10: # Object closer than 10 cm 
+LED.value(1) # Turn on LED
+ lcd.move_to(0, 1)
+ lcd.putstr("Object detected!") 
+else: 
+LED.value(0) # Turn off LED
+ lcd.move_to(0, 1)
+ lcd.putstr(" 
+sleep_ms(500)
